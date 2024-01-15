@@ -65,17 +65,14 @@ template <typename T> void Model::allocLayers() {
             ((ConvolutionalLayer*)layers[i])->allocateLayer<T>();
             break;
         case Layer::LayerType::DENSE:
-            assert(false && "Cannot allocate unimplemented layer");
-        //     ((DenseLayer*) layers[i])->allocateLayer<T>();
-        //     break;
+            ((DenseLayer*) layers[i])->allocateLayer<T>();
+            break;
         case Layer::LayerType::SOFTMAX:
-            assert(false && "Cannot allocate unimplemented layer");
-        //     ((SoftmaxLayer*) layers[i])->allocateLayer<T>();
-        //     break;
+            ((SoftmaxLayer*) layers[i])->allocateLayer<T>();
+            break;
         case Layer::LayerType::MAX_POOLING:
-            assert(false && "Cannot allocate unimplemented layer");
-        //     ((MaxPoolingLayer*) layers[i])->allocateLayer<T>();
-        //     break;
+            ((MaxPoolingLayer*) layers[i])->allocateLayer<T>();
+            break;
         case Layer::LayerType::NONE:
             [[fallthrough]];
         default:
@@ -96,14 +93,14 @@ template <typename T> void Model::freeLayers() {
             ((ConvolutionalLayer*)layers[i])->freeLayer<T>();
             break;
         case Layer::LayerType::DENSE:
-        //     ((DenseLayer*) layers[i])->freeLayer<T>();
-        //     break;
+             ((DenseLayer*) layers[i])->freeLayer<T>();
+             break;
         case Layer::LayerType::SOFTMAX:
-        //     ((SoftmaxLayer*) layers[i])->freeLayer<T>();
-        //     break;
+             ((SoftmaxLayer*) layers[i])->freeLayer<T>();
+             break;
         case Layer::LayerType::MAX_POOLING:
-        //     ((MaxPoolingLayer*) layers[i])->freeLayer<T>();
-        //     break;
+             ((MaxPoolingLayer*) layers[i])->freeLayer<T>();
+             break;
         case Layer::LayerType::NONE:
             [[fallthrough]];
         default:

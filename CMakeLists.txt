@@ -4,7 +4,7 @@ project(nn)
 set(CMAKE_CXX_STANDARD 20) # Changed to c++2a to match the Makefile's standard
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror -pedantic")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror -pedantic")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -lstdc++ -pthread") # Added basic libraries
 
 if(NOT CMAKE_BUILD_TYPE)

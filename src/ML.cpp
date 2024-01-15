@@ -51,29 +51,69 @@ Model buildToyModel(const fs::path modelPath) {
     // Input shape: 60x60x32
     // Output shape: 56x56x32
 
+    auto conv2 = new ConvolutionalLayer({{sizeof(fp32), {60, 60, 32}},                                     // Input Data
+                                         {sizeof(fp32), {56, 56, 32}},                                    // Output Data
+                                         {sizeof(fp32), {5,  5,  32, 32}, modelPath / "conv2_weights.bin"},  // Weights
+                                         {sizeof(fp32), {32},            modelPath /
+                                                                         "conv2_biases.bin"}});          // Bias
+    model.addLayer(conv2);
+
     // --- MPL 1: L3 ---
     // Input shape: 56x56x32
     // Output shape: 28x28x32
+    auto mpl1 = new MaxPoolingLayer({{sizeof(fp32), {56, 60, 32}},                                     // Input Data
+                                         {sizeof(fp32), {56, 56, 32}},                                    // Output Data
+                                         });
+    model.addLayer(mpl1);
 
     // --- Conv 3: L4 ---
     // Input shape: 28x28x32
     // Output shape: 26x26x64
+    auto conv3 = new ConvolutionalLayer({{sizeof(fp32), {28, 28, 32}},                                     // Input Data
+                                         {sizeof(fp32), {26, 26, 64}},                                    // Output Data
+                                         {sizeof(fp32), {3,  3,  32, 64}, modelPath / "con3_weights.bin"},  // Weights
+                                         {sizeof(fp32), {64},            modelPath /
+                                                                         "conv3_biases.bin"}});          // Bias
+    model.addLayer(conv3);
 
     // --- Conv 4: L5 ---
     // Input shape: 26x26x64
     // Output shape: 24x24x64
+    auto conv4 = new ConvolutionalLayer({{sizeof(fp32), {26, 26, 64}},                                     // Input Data
+                                         {sizeof(fp32), {24, 24, 64}},                                    // Output Data
+                                         {sizeof(fp32), {/* Please fill in dimensions for weights */}, modelPath / "con4_weights.bin"},  // Weights
+                                         {sizeof(fp32), {/* please fill in dimensions for biases */},            modelPath /
+                                                                         "conv4_biases.bin"}});          // Bias
+    model.addLayer(conv4);
+
 
     // --- MPL 2: L6 ---
     // Input shape: 24x24x64
     // Output shape: 12x12x64
+    auto mpl2 = new MaxPoolingLayer({{sizeof(fp32), {24, 24, 64}},                                     // Input Data
+                                     {sizeof(fp32), {12, 12, 64}},                                    // Output Data
+                                    });
+    model.addLayer(mpl2);
 
     // --- Conv 5: L7 ---
     // Input shape: 12x12x64
     // Output shape: 10x10x64
+    auto conv5 = new ConvolutionalLayer({{sizeof(fp32), {12, 12, 64}},                                     // Input Data
+                                         {sizeof(fp32), {10, 10, 64}},                                    // Output Data
+                                         {sizeof(fp32), {/* Please fill in dimensions for weights */}, modelPath / "con5_weights.bin"},  // Weights
+                                         {sizeof(fp32), {/* please fill in dimensions for biases */},            modelPath /
+                                                                                                                 "conv5_biases.bin"}});          // Bias
+    model.addLayer(conv5);
 
     // --- Conv 6: L8 ---
     // Input shape: 10x10x64
     // Output shape: 8x8x128
+    auto conv6 = new ConvolutionalLayer({{sizeof(fp32), {26, 26, 64}},                                     // Input Data
+                                         {sizeof(fp32), {24, 24, 64}},                                    // Output Data
+                                         {sizeof(fp32), {/* Please fill in dimensions for weights */}, modelPath / "con6_weights.bin"},  // Weights
+                                         {sizeof(fp32), {/* please fill in dimensions for biases */},            modelPath /
+                                                                                                                 "conv6_biases.bin"}});          // Bias
+    model.addLayer(conv6);
 
     // --- MPL 3: L9 ---
     // Input shape: 8x8x128
@@ -178,7 +218,7 @@ int runModelTest(){
 #else
 
 int main(int argc, char **argv) {
-    // Hanlde command line arguments
+    // Handle command line arguments
     Args &args = Args::getInst();
     args.parseArgs(argc, argv);
 #endif
@@ -193,7 +233,7 @@ int main(int argc, char **argv) {
     // Run some framework tests as an example of loading data
     runBasicTest(model, basePath);
 
-    // Run a layer infrence test
+    // Run a layer inference test
     runLayerTest(0, model, basePath);
 
     // Run an end-to-end infrence test
