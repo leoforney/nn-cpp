@@ -2,7 +2,6 @@
 
 namespace ML {
 
-#ifndef ZEDBOARD
 // --- Argument Parsing ---
 const char* argp_program_version =
     "Machine Learning Model Framework (CprE 487/587 @ ISU)\n\tAuthor: Matthew Dwyer (dwyer@iastate.edu)\n\tVersion: 0.1\n\tDate: August 28th, 2022";
@@ -73,6 +72,5 @@ void Args::parseArgs(int argc, char** argv) {
     this->basePath = _args.basePath;
     this->version = std::string(argp_program_version) + "\n";
 }
-#endif
 
 }  // namespace ML

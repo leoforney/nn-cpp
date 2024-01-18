@@ -6,6 +6,7 @@
 #include "layers/Layer.h"
 #include "layers/MaxPooling.h"
 #include "layers/Softmax.h"
+#include "layers/Flatten.h"
 
 namespace ML {
 class Model {
@@ -14,8 +15,8 @@ class Model {
     Model() : layers() {}  //, checkFinal(true), checkEachLayer(false) {}
 
     // Functions
-    const LayerData& infrence(const LayerData& inData, const Layer::InfType infType = Layer::InfType::NAIVE) const;
-    const LayerData& infrenceLayer(const LayerData& inData, const int layerNum, const Layer::InfType infType = Layer::InfType::NAIVE) const;
+    const LayerData& inference(const LayerData& inData, const Layer::InfType infType = Layer::InfType::NAIVE) const;
+    const LayerData& inferenceLayer(const LayerData& inData, const int layerNum, const Layer::InfType infType = Layer::InfType::NAIVE) const;
 
     // Internal memory management
     // Allocate the internal output buffers for each layer in the model
@@ -48,7 +49,7 @@ class Model {
     Layer*& operator[](const std::size_t idx) { return layers[idx]; }
     const Layer* operator[](const std::size_t idx) const { return layers[idx]; }
 
-    // Call operators (run infrence)
+    // Call operators (run inference)
     const LayerData& operator()(const LayerData& inData, const Layer::InfType infType = Layer::InfType::NAIVE) const;
     const LayerData& operator()(const LayerData& inData, const int layerNum, const Layer::InfType infType = Layer::InfType::NAIVE) const;
 
@@ -72,6 +73,9 @@ template <typename T> void Model::allocLayers() {
             break;
         case Layer::LayerType::MAX_POOLING:
             ((MaxPoolingLayer*) layers[i])->allocateLayer<T>();
+            break;
+        case Layer::LayerType::FLATTEN:
+            ((FlattenLayer*) layers[i])->allocateLayer<T>();
             break;
         case Layer::LayerType::NONE:
             [[fallthrough]];
@@ -101,6 +105,9 @@ template <typename T> void Model::freeLayers() {
         case Layer::LayerType::MAX_POOLING:
              ((MaxPoolingLayer*) layers[i])->freeLayer<T>();
              break;
+        case Layer::LayerType::FLATTEN:
+            ((FlattenLayer*) layers[i])->freeLayer<T>();
+            break;
         case Layer::LayerType::NONE:
             [[fallthrough]];
         default:

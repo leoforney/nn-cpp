@@ -23,26 +23,24 @@ namespace ML {
         std::size_t outWidth = outDims.dims[1];
         std::size_t outColorChannels = outDims.dims[2];
 
-        for (std::size_t i = 0; i < 2 * outHeight; i += 2) {
-            for (std::size_t j = 0; j < 2 * outWidth; j += 2) {
-
-                for (std::size_t c = 0; c < inputColorChannels; ++c) {
-
-                    float maxVal = -FLT_MAX;
-
-                    for (int h = 0; h < 2; ++h) {
-                        for (int w = 0; w < 2; ++w) {
-                            // Ensure that we don't access beyond the input dimensions
-                            if ((i + h) < inputHeight && (j + w) < inputWidth) {
-                                maxVal = std::max(maxVal, dataIn3DArray[i+h][j+w][c]);
+        for (std::size_t c = 0; c < inputColorChannels; ++c) {
+            for (std::size_t h = 0; h < inputHeight; h+=2) {
+                for (std::size_t w = 0; w < inputWidth; w+=2) {
+                    float maxPixel = -FLT_MAX;
+                    // Part of the image within the reach of the filter
+                    for (std::size_t fh = 0; fh < 2; ++fh) {
+                        for (std::size_t fw = 0; fw < 2; ++fw) {
+                            float pixel = dataIn3DArray[h + fh][w + fw][c];
+                            if (pixel > maxPixel) {
+                                maxPixel = pixel;
                             }
                         }
                     }
-
-                    dataOut3DArray[i/2][j/2][c] = maxVal;
+                    dataOut3DArray[h / 2][w / 2][c] = maxPixel;
                 }
             }
         }
+
     }
 
 // Compute the convolution using threads

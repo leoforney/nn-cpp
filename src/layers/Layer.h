@@ -23,7 +23,7 @@ class LayerParams {
     const std::filesystem::path filePath;
 };
 
-// Output data container of a layer infrence
+// Output data container of a layer inference
 class LayerData {
    public:
     LayerData(const LayerParams& params) : params(params), alloced(false), data(nullptr) {}
@@ -63,11 +63,11 @@ class LayerData {
 // Base class all layers extend from
 class Layer {
    public:
-    // Infrence Type
+    // inference Type
     enum class InfType { NAIVE, THREADED, TILED, SIMD };
 
     // Layer Type
-    enum class LayerType { NONE, CONVOLUTIONAL, DENSE, SOFTMAX, MAX_POOLING };
+    enum class LayerType { NONE, CONVOLUTIONAL, DENSE, SOFTMAX, MAX_POOLING, FLATTEN };
 
    public:
     // Contructors

@@ -12,13 +12,9 @@
 #include "layers/Layer.h"
 #include "layers/MaxPooling.h"
 #include "layers/Softmax.h"
+#include "layers/Flatten.h"
 
-#ifdef ZEDBOARD
-#    include "ML.h"
-namespace ML {
-#else
 using namespace ML;
-#endif
 
 // Make our code a bit cleaner
 namespace fs = std::filesystem;
@@ -61,8 +57,8 @@ Model buildToyModel(const fs::path modelPath) {
     // --- MPL 1: L3 ---
     // Input shape: 56x56x32
     // Output shape: 28x28x32
-    auto mpl1 = new MaxPoolingLayer({{sizeof(fp32), {56, 60, 32}},                                     // Input Data
-                                         {sizeof(fp32), {56, 56, 32}},                                    // Output Data
+    auto mpl1 = new MaxPoolingLayer({{sizeof(fp32), {56, 56, 32}},                                     // Input Data
+                                         {sizeof(fp32), {28, 28, 32}},                                    // Output Data
                                          });
     model.addLayer(mpl1);
 
@@ -71,7 +67,7 @@ Model buildToyModel(const fs::path modelPath) {
     // Output shape: 26x26x64
     auto conv3 = new ConvolutionalLayer({{sizeof(fp32), {28, 28, 32}},                                     // Input Data
                                          {sizeof(fp32), {26, 26, 64}},                                    // Output Data
-                                         {sizeof(fp32), {3,  3,  32, 64}, modelPath / "con3_weights.bin"},  // Weights
+                                         {sizeof(fp32), {3,  3,  32, 64}, modelPath / "conv3_weights.bin"},  // Weights
                                          {sizeof(fp32), {64},            modelPath /
                                                                          "conv3_biases.bin"}});          // Bias
     model.addLayer(conv3);
@@ -79,11 +75,11 @@ Model buildToyModel(const fs::path modelPath) {
     // --- Conv 4: L5 ---
     // Input shape: 26x26x64
     // Output shape: 24x24x64
-    auto conv4 = new ConvolutionalLayer({{sizeof(fp32), {26, 26, 64}},                                     // Input Data
-                                         {sizeof(fp32), {24, 24, 64}},                                    // Output Data
-                                         {sizeof(fp32), {/* Please fill in dimensions for weights */}, modelPath / "con4_weights.bin"},  // Weights
-                                         {sizeof(fp32), {/* please fill in dimensions for biases */},            modelPath /
-                                                                         "conv4_biases.bin"}});          // Bias
+    auto conv4 = new ConvolutionalLayer({{sizeof(fp32), {26, 26, 64}},
+                                         {sizeof(fp32), {24, 24, 64}},
+                                         {sizeof(fp32), {3, 3, 64, 64}, modelPath /
+                                                        "conv4_weights.bin"},  // Weights
+                                         {sizeof(fp32), {64}, modelPath / "conv4_biases.bin"}});  // Bias
     model.addLayer(conv4);
 
 
@@ -98,42 +94,60 @@ Model buildToyModel(const fs::path modelPath) {
     // --- Conv 5: L7 ---
     // Input shape: 12x12x64
     // Output shape: 10x10x64
-    auto conv5 = new ConvolutionalLayer({{sizeof(fp32), {12, 12, 64}},                                     // Input Data
-                                         {sizeof(fp32), {10, 10, 64}},                                    // Output Data
-                                         {sizeof(fp32), {/* Please fill in dimensions for weights */}, modelPath / "con5_weights.bin"},  // Weights
-                                         {sizeof(fp32), {/* please fill in dimensions for biases */},            modelPath /
-                                                                                                                 "conv5_biases.bin"}});          // Bias
+    auto conv5 = new ConvolutionalLayer({{sizeof(fp32), {12, 12, 64}},
+                                         {sizeof(fp32), {10, 10, 64}},
+                                         {sizeof(fp32), {3, 3, 64, 64}, modelPath / "conv5_weights.bin"},  // Weights
+                                         {sizeof(fp32), {64}, modelPath / "conv5_biases.bin"}});  // Bias
     model.addLayer(conv5);
 
     // --- Conv 6: L8 ---
     // Input shape: 10x10x64
     // Output shape: 8x8x128
-    auto conv6 = new ConvolutionalLayer({{sizeof(fp32), {26, 26, 64}},                                     // Input Data
-                                         {sizeof(fp32), {24, 24, 64}},                                    // Output Data
-                                         {sizeof(fp32), {/* Please fill in dimensions for weights */}, modelPath / "con6_weights.bin"},  // Weights
-                                         {sizeof(fp32), {/* please fill in dimensions for biases */},            modelPath /
-                                                                                                                 "conv6_biases.bin"}});          // Bias
+    auto conv6 = new ConvolutionalLayer({{sizeof(fp32), {10, 10, 64}},
+                                         {sizeof(fp32), {8, 8, 128}},
+                                         {sizeof(fp32), {3, 3, 64, 128}, modelPath / "conv6_weights.bin"},  // Weights
+                                         {sizeof(fp32), {128}, modelPath / "conv6_biases.bin"}});  // Bias
     model.addLayer(conv6);
 
     // --- MPL 3: L9 ---
     // Input shape: 8x8x128
     // Output shape: 4x4x128
+    auto mpl3 = new MaxPoolingLayer({{sizeof(fp32), {8, 8, 128}},                                     // Input Data
+                                     {sizeof(fp32), {4, 4, 128}},                                    // Output Data
+                                    });
+    model.addLayer(mpl3);
 
     // --- Flatten 1: L10 ---
     // Input shape: 4x4x128
     // Output shape: 2048
+    auto fl1 = new FlattenLayer({sizeof(fp32), {4, 4, 128}},
+                                {sizeof(fp32), {2048}});
+    model.addLayer(fl1);
 
     // --- Dense 1: L11 ---
     // Input shape: 2048
     // Output shape: 256
+    auto d1 = new ConvolutionalLayer({{sizeof(fp32), {2048}},
+                                         {sizeof(fp32), {256}},
+                                         {sizeof(fp32), {256, 2048}, modelPath / "dense1_weights.bin"},  // Weights
+                                         {sizeof(fp32), {256}, modelPath / "dense1_biases.bin"}});  // Bias
+    model.addLayer(d1);
 
     // --- Dense 2: L12 ---
     // Input shape: 256
     // Output shape: 200
+    auto d2 = new ConvolutionalLayer({{sizeof(fp32), {256}},
+                                         {sizeof(fp32), {200}},
+                                         {sizeof(fp32), {200, 256}, modelPath / "dense2_weights.bin"},  // Weights
+                                         {sizeof(fp32), {200}, modelPath / "dense2_biases.bin"}});  // Bias
+    model.addLayer(d2);
 
     // --- Softmax 1: L13 ---
     // Input shape: 200
     // Output shape: 200
+    auto s1 = new SoftmaxLayer({sizeof(fp32), {200}},
+                                {sizeof(fp32), {200}});
+    model.addLayer(s1);
 
     return model;
 }
@@ -174,15 +188,15 @@ void runBasicTest(const Model &model, const fs::path &basePath) {
 
 void runLayerTest(const std::size_t layerNum, const Model &model, const fs::path &basePath) {
     // Load an image
-    logInfo("--- Running Infrence Test ---");
+    logInfo("--- Running Inference Test ---");
     dimVec inDims = {64, 64, 3};
 
     // Construct a LayerData object from a LayerParams one
     LayerData img({sizeof(fp32), inDims, basePath / "image_0.bin"});
     img.loadData<Array3D_fp32>();
 
-    // Run infrence on the model
-    const LayerData output = model.infrenceLayer(img, layerNum, Layer::InfType::NAIVE);
+    // Run inference on the model
+    const LayerData output = model.inferenceLayer(img, layerNum, Layer::InfType::NAIVE);
 
     // Compare the output
     // Construct a LayerData object from a LayerParams one
@@ -192,17 +206,17 @@ void runLayerTest(const std::size_t layerNum, const Model &model, const fs::path
     output.compareWithinPrint<Array3D_fp32>(expected);
 }
 
-void runInfrenceTest(const Model &model, const fs::path &basePath) {
+void runinferenceTest(const Model &model, const fs::path &basePath) {
     // Load an image
-    logInfo("--- Running Infrence Test ---");
+    logInfo("--- Running Inference Test ---");
     dimVec inDims = {64, 64, 3};
 
     // Construct a LayerData object from a LayerParams one
     LayerData img({sizeof(fp32), inDims, basePath / "image_0.bin"});
     img.loadData<Array3D_fp32>();
 
-    // Run infrence on the model
-    const LayerData output = model.infrence(img, Layer::InfType::NAIVE);
+    // Run inference on the model
+    const LayerData output = model.inference(img, Layer::InfType::NAIVE);
 
     // Compare the output
     // Construct a LayerData object from a LayerParams one
@@ -213,15 +227,10 @@ void runInfrenceTest(const Model &model, const fs::path &basePath) {
 }
 
 // clang-format off
-#ifdef ZEDBOARD
-int runModelTest(){
-#else
-
 int main(int argc, char **argv) {
     // Handle command line arguments
     Args &args = Args::getInst();
     args.parseArgs(argc, argv);
-#endif
 
     // Base input data path (determined from current directory of where you are running the command)
     fs::path basePath("data");  // May need to be altered for zedboards loading from SD Cards
@@ -236,8 +245,8 @@ int main(int argc, char **argv) {
     // Run a layer inference test
     runLayerTest(0, model, basePath);
 
-    // Run an end-to-end infrence test
-    runInfrenceTest(model, basePath);
+    // Run an end-to-end inference test
+    runinferenceTest(model, basePath);
 
     // Clean up
     model.freeLayers<fp32>();
@@ -245,8 +254,3 @@ int main(int argc, char **argv) {
     return 0;
 }
 // clang-format on
-
-#ifdef ZEDBOARD
-}
-;  // namespace ML;
-#endif

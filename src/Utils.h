@@ -21,18 +21,14 @@ using std::format;
 using std::make_format_args;
 #elif __has_include(<fmt/core.h>)
 //#define FMT_HEADER_ONLY
-#    include <fmt/core.h>
+# include <fmt/core.h>
 using fmt::make_format_args;
 using fmt::vformat;
 #else
 #    define STR_FORMAT_NONE
 #endif
 
-#ifdef ZEDBOARD
-#    include "xilsd.h"
-#else
-#    include <argp.h>
-#endif
+# include <argp.h>
 
 namespace ML {
 
@@ -218,7 +214,6 @@ template <typename T_FUNC, typename... Args> typename std::result_of<T_FUNC && (
 
 // --- Data Helper Functions ---
 
-#ifndef ZEDBOARD
 // --- Argument Parsing ---
 // GCC argument input struct
 class arguments {
@@ -259,7 +254,6 @@ class Args {
    private:
     struct arguments _args;
 };
-#endif
 
 // Metaprogramming type helpers
 template <typename T> struct remove_all_pointers { typedef T type; };
@@ -412,11 +406,7 @@ bool compareArrayWithinPrint(const T_ARRAY& array0, const T_ARRAY& array1, const
 // --- File Data Loading ---
 // Recursive array loading function that can load an array of data from multiple dimentions from a binary file
 template <typename T_BASE>
-#ifdef ZEDBOARD
-void loadArrayData(FIL* file, T_BASE* values, const std::size_t* dims, const std::size_t dimsLen, const std::size_t dimIndex = 0) {
-#else
 void loadArrayData(std::ifstream& file, T_BASE* values, const std::size_t* dims, const std::size_t dimsLen, const std::size_t dimIndex = 0) {
-#endif
     static_assert(!std::is_pointer<T_BASE>(), "Cannot load pointer type values (arrays)");
 
     // Read the values and recurse if needed
@@ -428,11 +418,7 @@ void loadArrayData(std::ifstream& file, T_BASE* values, const std::size_t* dims,
                 // We do not care about the data pointer returned here since we have that already stored in a array
                 loadArrayData<T_BASE>(file, valuesCast[i], dims, dimsLen, dimIndex + 1);
             } else if (
-#ifdef ZEDBOARD
-                !xilsd_fread(reinterpret_cast<char*>(valuesCast[i]), sizeof(T_BASE), dims[dimIndex + 1], file)
-#else
                 !file.read(reinterpret_cast<char*>(valuesCast[i]), sizeof(T_BASE) * dims[dimIndex + 1])
-#endif
             ) {  // Read our values
                 logError("Failed to read data values from file at index");
                 assert(false && "Failed to read file data");
@@ -441,11 +427,7 @@ void loadArrayData(std::ifstream& file, T_BASE* values, const std::size_t* dims,
         // Handle 1D Arrays
     } else {
         if (
-#ifdef ZEDBOARD
-            !xilsd_fread(reinterpret_cast<char*>(values), sizeof(T_BASE), dims[dimIndex], file)
-#else
             !file.read(reinterpret_cast<char*>(values), sizeof(T_BASE) * dims[dimIndex])
-#endif
         ) {  // Read our values
             std::cerr << "Failed to read data values from file" << std::endl;
             assert(false && "Failed to read file data");
@@ -459,13 +441,10 @@ template <typename T> T loadArray(const std::filesystem::path& filepath, const s
     // assert(std::rank<T>() == dims.size() && "Array type does not have the same rank as the dims provided");
 
     // Open our file and check for issues
-#ifdef ZEDBOARD
-    FIL* file = nullptr;
-    if (!xilsd_fopen(file, filepath.c_str()))  // Create and open our file on the SD card
-#else
+
     std::ifstream file(filepath, std::ios::binary);  // Create and open our file
     if (file.is_open())
-#endif
+
     {
         std::cout << "Opening binary file " << filepath << std::endl;
     } else {
@@ -478,11 +457,6 @@ template <typename T> T loadArray(const std::filesystem::path& filepath, const s
     // Load the data
     typedef typename remove_all_pointers<T>::type T_BASE;
     loadArrayData<T_BASE>(file, reinterpret_cast<T_BASE*>(values), dims.data(), dims.size());
-
-#ifdef ZEDBOARD
-    // Close our file (ifstream deconstructor does this for us)
-    xilsd_fclose(file);
-#endif
 
     return values;
 }
