@@ -7,6 +7,14 @@
 #include "../Utils.h"
 #include "Layer.h"
 
+__global__ void print_grid_dimensions() {
+    // printf inside a kernel is only supported by GPUs with Compute Capability 2.0 or higher
+    if(threadIdx.x == 0 && blockIdx.x == 0)
+    {
+        printf("Grid dimensions: (%d, %d, %d)\n", gridDim.x, gridDim.y, gridDim.z);
+    }
+}
+
 namespace ML {
 
 void ConvolutionalLayer::computeNaive(const LayerData& dataIn) const {
