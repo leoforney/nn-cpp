@@ -196,7 +196,7 @@ void runLayerTest(const std::size_t layerNum, const Model &model, const fs::path
     img.loadData<Array3D_fp32>();
 
     // Run inference on the model
-    const LayerData output = model.inferenceLayer(img, layerNum, Layer::InfType::NAIVE);
+    const LayerData output = model.inferenceLayer(img, layerNum, Layer::InfType::SIMD);
 
     // Compare the output
     // Construct a LayerData object from a LayerParams one
@@ -216,7 +216,7 @@ void runinferenceTest(const Model &model, const fs::path &basePath) {
     img.loadData<Array3D_fp32>();
 
     // Run inference on the model
-    const LayerData output = model.inference(img, Layer::InfType::NAIVE);
+    const LayerData output = model.inference(img, Layer::InfType::SIMD);
 
     // Compare the output
     // Construct a LayerData object from a LayerParams one

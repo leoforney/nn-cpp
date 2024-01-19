@@ -1,11 +1,9 @@
 cmake_minimum_required(VERSION 3.22)
-project(nn)
+project(nn LANGUAGES CXX CUDA)
 
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CUDA_STANDARD 17)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -lstdc++ -pthread")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror -lstdc++ -pthread")
 
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release)
@@ -22,9 +20,7 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(fmt)
 
 set(CMAKE_CXX_FLAGS_DEBUG "-g -Og")
-set(CMAKE_CXX_FLAGS_RELEASE "-O3")
-
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -march=native")
+set(CMAKE_CXX_FLAGS_RELEASE "-O3 -march=native")
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9.0)
@@ -38,13 +34,8 @@ file(GLOB_RECURSE nn_SRC
         "src/*.cu"
 )
 
-# Add CUDA to the project
-find_package(CUDA REQUIRED)
+add_executable(nn ${nn_SRC})
 
-# Set CUDA NVCC Flags
-set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -arch=sm_30 -x")
-
-cuda_add_executable(nn ${nn_SRC})
+set_target_properties(nn PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
 
 target_link_libraries(nn fmt::fmt-header-only)
-target_link_libraries(nn ${CUDA_LIBRARIES})
