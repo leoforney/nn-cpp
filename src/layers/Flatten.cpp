@@ -27,15 +27,7 @@ namespace ML {
         }
     }
 
-    void FlattenLayer::computeThreaded(const LayerData& dataIn) const {
-        // TODO: Your Code Here...
-    }
-
-    void FlattenLayer::computeTiled(const LayerData& dataIn) const {
-        // TODO: Your Code Here...
-    }
-
     void FlattenLayer::computeSIMD(const LayerData& dataIn) const {
-        // TODO: Your Code Here...
+        computeNaive(dataIn);
     }
 };

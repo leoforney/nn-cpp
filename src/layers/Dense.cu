@@ -45,15 +45,6 @@ namespace ML {
         }
     }
 
-// Compute the dense using threads
-    void DenseLayer::computeThreaded(const LayerData& dataIn) const {
-        // TODO: Your Code Here...
-    }
-
-// Compute the dense using a tiled approach
-    void DenseLayer::computeTiled(const LayerData& dataIn) const {
-        // TODO: Your Code Here...
-    }
 
 // Compute the dense using SIMD
     void DenseLayer::computeSIMD(const LayerData& dataIn) const {

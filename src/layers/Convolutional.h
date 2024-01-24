@@ -36,8 +36,6 @@ class ConvolutionalLayer : public Layer {
 
     // Virtual functions
     virtual void computeNaive(const LayerData& dataIn) const override;
-    virtual void computeThreaded(const LayerData& dataIn) const override;
-    virtual void computeTiled(const LayerData& dataIn) const override;
     virtual void computeSIMD(const LayerData& dataIn) const override;
 
    private:

@@ -29,12 +29,6 @@ const LayerData& Model::inferenceLayer(const LayerData& inData, const int layerN
     case Layer::InfType::NAIVE:
         layer.computeNaive(inData);
         break;
-    case Layer::InfType::THREADED:
-        layer.computeThreaded(inData);
-        break;
-    case Layer::InfType::TILED:
-        layer.computeTiled(inData);
-        break;
     case Layer::InfType::SIMD:
         layer.computeSIMD(inData);
         break;
