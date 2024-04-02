@@ -16,8 +16,14 @@ FetchContent_Declare(
     GIT_REPOSITORY https://github.com/fmtlib/fmt.git
     GIT_TAG        master
 )
-
 FetchContent_MakeAvailable(fmt)
+
+FetchContent_Declare(
+        thrust
+        GIT_REPOSITORY https://github.com/NVIDIA/cccl.git
+        GIT_TAG        v2.3.2
+)
+FetchContent_MakeAvailable(thrust)
 
 set(CMAKE_CXX_FLAGS_DEBUG "-g -Og")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -march=native")

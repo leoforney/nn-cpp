@@ -377,7 +377,7 @@ inline bool compareArrayWithin(const T data1, const T data2, const std::size_t* 
     // assert(std::rank<T>() == dimsLen && "Array type does not have the same rank as the dims provided");
 
     typedef typename remove_all_pointers<T>::type T_BASE;
-    return !compareWithin(compareArray<T_BASE>(reinterpret_cast<T_BASE*>(data1), reinterpret_cast<T_BASE*>(data2), dims, dimsLen, dimIndex));
+    return compareWithin(compareArray<T_BASE>(reinterpret_cast<T_BASE*>(data1), reinterpret_cast<T_BASE*>(data2), dims, dimsLen, dimIndex));
 }
 
 // Performs a compare operation and checks if the max difference is within the provided epsilon

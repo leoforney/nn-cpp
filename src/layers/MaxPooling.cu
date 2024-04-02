@@ -27,7 +27,6 @@ namespace ML {
             for (std::size_t h = 0; h < inputHeight; h+=2) {
                 for (std::size_t w = 0; w < inputWidth; w+=2) {
                     float maxPixel = -FLT_MAX;
-                    // Part of the image within the reach of the filter
                     for (std::size_t fh = 0; fh < 2; ++fh) {
                         for (std::size_t fw = 0; fw < 2; ++fw) {
                             float pixel = dataIn3DArray[h + fh][w + fw][c];

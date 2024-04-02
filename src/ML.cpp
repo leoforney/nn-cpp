@@ -127,7 +127,7 @@ Model buildToyModel(const fs::path modelPath) {
     // --- Dense 1: L11 ---
     // Input shape: 2048
     // Output shape: 256
-    auto d1 = new ConvolutionalLayer({{sizeof(fp32), {2048}},
+    auto d1 = new DenseLayer({{sizeof(fp32), {2048}},
                                          {sizeof(fp32), {256}},
                                          {sizeof(fp32), {256, 2048}, modelPath / "dense1_weights.bin"},  // Weights
                                          {sizeof(fp32), {256}, modelPath / "dense1_biases.bin"}});  // Bias
@@ -136,7 +136,7 @@ Model buildToyModel(const fs::path modelPath) {
     // --- Dense 2: L12 ---
     // Input shape: 256
     // Output shape: 200
-    auto d2 = new ConvolutionalLayer({{sizeof(fp32), {256}},
+    auto d2 = new DenseLayer({{sizeof(fp32), {256}},
                                          {sizeof(fp32), {200}},
                                          {sizeof(fp32), {200, 256}, modelPath / "dense2_weights.bin"},  // Weights
                                          {sizeof(fp32), {200}, modelPath / "dense2_biases.bin"}});  // Bias
@@ -159,6 +159,8 @@ void runBasicTest(const Model &model, const fs::path &basePath) {
     fs::path imgPath("./data/image_0.bin");
     dimVec dims = {64, 64, 3};
     Array3D_fp32 img = loadArray<Array3D_fp32>(imgPath, dims);
+
+
 
     // Compare images
     std::cout << "Comparing image 0 to itself (max error): " << compareArray<Array3D_fp32>(img, img, dims) << std::endl
@@ -196,7 +198,7 @@ void runLayerTest(const std::size_t layerNum, const Model &model, const fs::path
     img.loadData<Array3D_fp32>();
 
     // Run inference on the model
-    const LayerData output = model.inferenceLayer(img, layerNum, Layer::InfType::SIMD);
+    const LayerData output = model.inferenceLayer(img, layerNum, Layer::InfType::NAIVE);
 
     // Compare the output
     // Construct a LayerData object from a LayerParams one
@@ -216,7 +218,7 @@ void runinferenceTest(const Model &model, const fs::path &basePath) {
     img.loadData<Array3D_fp32>();
 
     // Run inference on the model
-    const LayerData output = model.inference(img, Layer::InfType::SIMD);
+    const LayerData output = model.inference(img, Layer::InfType::NAIVE);
 
     // Compare the output
     // Construct a LayerData object from a LayerParams one
